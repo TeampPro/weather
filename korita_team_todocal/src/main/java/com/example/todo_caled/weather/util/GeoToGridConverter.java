@@ -1,4 +1,4 @@
-package com.example.todo_caled.util;
+package com.example.todo_caled.weather.util;
 
 public class GeoToGridConverter {
     // 기상청 공식 상수

@@ -1,6 +1,6 @@
-package com.example.todo_caled.service;
+package com.example.todo_caled.weather.service;
 
-import com.example.todo_caled.util.GeoToGridConverter;
+import com.example.todo_caled.weather.util.GeoToGridConverter;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;

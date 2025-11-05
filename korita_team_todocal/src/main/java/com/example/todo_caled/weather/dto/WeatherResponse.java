@@ -1,4 +1,4 @@
-package com.example.todo_caled.dto;
+package com.example.todo_caled.weather.dto;
 
 import lombok.Data;
 

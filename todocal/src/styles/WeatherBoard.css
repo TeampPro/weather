@@ -26,13 +26,13 @@
 
 /* 전체 페이지 */
 .page-container {
-  background: #dfe2e6;
   min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 40px 0;
-  overflow-x: hidden; /* ✅ 가로 스크롤 방지 */
+  overflow-x: hidden;
+  
 }
 
 /* 하얀색 컨테이너 */
