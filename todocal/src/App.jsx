@@ -6,7 +6,9 @@ import SharedTasks from "./pages/SharedTasks";
 import WeatherBoard from "./pages/WeatherBoard";
 import Header from "./components/Header/Header";
 import AddTaskPage from "./pages/AddTaskPage";
-import KakaoMapBox from "./pages/KakaoMapBox"; // ✅ 통합된 지도 컴포넌트
+import KakaoMapBox from "./pages/KakaoMapBox";
+import Login from "./pages/Login";
+import SignUp from "./pages/SignUp"
 
 function App() {
   return (
@@ -16,6 +18,8 @@ function App() {
       <div className="main-layout">
         <div className="content">
           <Routes>
+            <Route path="/" element={<Login />} />
+            <Route path="/signup" element={<SignUp />} /> 
             <Route path="/" element={<AllTasks />} />
             <Route path="/week" element={<WeekTasks />} />
             <Route path="/month" element={<MonthTasks />} />
