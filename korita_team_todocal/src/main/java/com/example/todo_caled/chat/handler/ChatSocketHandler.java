@@ -21,7 +21,7 @@ import java.util.Set;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class ChatSoketHandler extends TextWebSocketHandler {
+public class ChatSocketHandler extends TextWebSocketHandler {
 
     private final ChatService chatService;
     private final Set<WebSocketSession> sessions = Collections.synchronizedSet(new HashSet<>());

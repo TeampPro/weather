@@ -1,6 +1,6 @@
 package com.example.todo_caled.config;
 
-import com.example.todo_caled.chat.handler.ChatSoketHandler;
+import com.example.todo_caled.chat.handler.ChatSocketHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
@@ -10,13 +10,13 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 @Configuration
 @EnableWebSocket
 @RequiredArgsConstructor
-public class ChatWebSoketConfig implements WebSocketConfigurer {
+public class ChatWebSocketConfig implements WebSocketConfigurer {
 
-    private final ChatSoketHandler chatSoketHandler;
+    private final ChatSocketHandler chatSocketHandler;
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(chatSoketHandler, "/ws/chat")
-                .setAllowedOrigins("*");     // 임시 개발용 전체 개방
+        registry.addHandler(chatSocketHandler, "/ws/chat")
+                .setAllowedOriginPatterns("*");
     }
 }
