@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 function TodoList({ date, todos, onAddTodo }) {
   const [text, setText] = useState("");

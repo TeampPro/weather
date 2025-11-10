@@ -1,90 +1,128 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import "../styles/KakaoMapBox.css";
 
 function KakaoMapBox() {
   const [map, setMap] = useState(null);
   const [search, setSearch] = useState("");
+  const [mapType, setMapType] = useState("roadmap");
+  const mapRef = useRef(null);
+  const markerRef = useRef(null);
+  const infoWindowRef = useRef(null); // ✅ 인포윈도우 추적용
 
+  // ✅ Kakao SDK 로드
   useEffect(() => {
-    // ✅ 이미 kakao 객체가 존재하면 재로딩 방지
     if (window.kakao && window.kakao.maps) {
       initMap();
       return;
     }
 
-    // ✅ 스크립트 중복 방지
-    const existingScript = document.getElementById("kakao-map-sdk");
-    if (existingScript) {
-      existingScript.addEventListener("load", initMap);
+    const existing = document.getElementById("kakao-map-sdk");
+    if (existing) {
+      existing.addEventListener("load", initMap);
       return;
     }
 
-    // ✅ SDK 로드
     const script = document.createElement("script");
     script.id = "kakao-map-sdk";
-    // ⚠️ 본인 JavaScript 키 (카카오 개발자 콘솔의 “JavaScript 키”)
     script.src =
       "https://dapi.kakao.com/v2/maps/sdk.js?appkey=003886aac0beda9c1fe23ae6ece8b689&autoload=false&libraries=services";
     script.async = true;
     document.head.appendChild(script);
 
     script.onload = () => {
-      if (window.kakao && window.kakao.maps) {
-        window.kakao.maps.load(initMap);
-      }
-    };
-
-    script.onerror = () => {
-      console.error("❌ Kakao Maps SDK 로드 실패 — 도메인 등록을 확인하세요.");
+      window.kakao.maps.load(initMap);
     };
   }, []);
 
-  // ✅ 지도 초기화 함수
+  // ✅ 지도 초기화
   const initMap = () => {
-    const container = document.getElementById("mapBox");
+    const container = mapRef.current;
     if (!container) return;
 
     const options = {
-      center: new window.kakao.maps.LatLng(37.5665, 126.9780), // 서울시청 좌표
+      center: new window.kakao.maps.LatLng(33.450701, 126.570667), // 제주도 좌표
       level: 3,
     };
 
     const createdMap = new window.kakao.maps.Map(container, options);
     setMap(createdMap);
+
+    // 기본 마커
+    const markerPosition = new window.kakao.maps.LatLng(33.450701, 126.570667);
+    const marker = new window.kakao.maps.Marker({ position: markerPosition });
+    marker.setMap(createdMap);
+    markerRef.current = marker;
   };
 
-  // 🔍 검색 기능
+  // 🔍 장소 검색
   const handleSearch = (e) => {
     e.preventDefault();
     if (!map || !search.trim()) return;
 
-    if (!window.kakao?.maps?.services) {
-      alert("지도가 아직 완전히 로드되지 않았습니다.");
-      return;
-    }
-
     const ps = new window.kakao.maps.services.Places();
-
     ps.keywordSearch(search, (data, status) => {
       if (status === window.kakao.maps.services.Status.OK) {
         const first = data[0];
         const moveLatLon = new window.kakao.maps.LatLng(first.y, first.x);
         map.setCenter(moveLatLon);
 
+        // ✅ 기존 마커와 인포윈도우 제거
+        if (markerRef.current) markerRef.current.setMap(null);
+        if (infoWindowRef.current) infoWindowRef.current.close();
+
+        // 새 마커 생성
         const marker = new window.kakao.maps.Marker({
           map,
           position: moveLatLon,
         });
+        markerRef.current = marker;
+
+        // ✅ 인포윈도우 내용 (이름, 주소, 전화번호 포함)
+        const placeName = first.place_name || "이름 정보 없음";
+        const address =
+          first.road_address_name ||
+          first.address_name ||
+          "주소 정보 없음";
+        const phone = first.phone || "전화번호 없음";
+
+        const iwContent = `
+          <div style="padding:8px; font-size:13px; line-height:1.5;">
+            <b style="font-size:14px;">${placeName}</b><br/>
+            📞 ${phone}<br/>
+            📍 ${address}<br/>
+            <a href="https://map.kakao.com/link/map/${placeName},${first.y},${first.x}" 
+              target="_blank" style="color:blue;">큰지도보기</a>
+          <a href="https://map.kakao.com/link/to/${placeName},${first.y},${first.x}" 
+              target="_blank" style="color:blue; margin-left:5px;">길찾기</a>
+          </div>
+        `;
 
         const infowindow = new window.kakao.maps.InfoWindow({
-          content: `<div style="padding:5px;font-size:12px;">${first.place_name}</div>`,
+          content: iwContent,
         });
         infowindow.open(map, marker);
+        infoWindowRef.current = infowindow; // ✅ 추적 저장
       } else {
         alert("검색 결과가 없습니다.");
       }
     });
   };
+
+  // 🗺️ 지도 타입 전환
+  const handleMapTypeChange = (type) => {
+    if (!map) return;
+    if (type === "roadmap") {
+      map.setMapTypeId(window.kakao.maps.MapTypeId.ROADMAP);
+      setMapType("roadmap");
+    } else {
+      map.setMapTypeId(window.kakao.maps.MapTypeId.HYBRID);
+      setMapType("skyview");
+    }
+  };
+
+  // 🔍 확대/축소
+  const zoomIn = () => map && map.setLevel(map.getLevel() - 1);
+  const zoomOut = () => map && map.setLevel(map.getLevel() + 1);
 
   return (
     <div className="map-container">
@@ -103,7 +141,30 @@ function KakaoMapBox() {
         </button>
       </form>
 
-      <div id="mapBox" className="map-box"></div>
+      {/* 지도 타입 및 줌 버튼 */}
+      <div className="control-box">
+        <button
+          onClick={() => handleMapTypeChange("roadmap")}
+          className={mapType === "roadmap" ? "selected_btn" : "btn"}
+        >
+          일반지도
+        </button>
+        <button
+          onClick={() => handleMapTypeChange("skyview")}
+          className={mapType === "skyview" ? "selected_btn" : "btn"}
+        >
+          스카이뷰
+        </button>
+        <button className="btn" onClick={zoomIn}>
+          +
+        </button>
+        <button className="btn" onClick={zoomOut}>
+          -
+        </button>
+      </div>
+
+      {/* 지도 영역 */}
+      <div id="mapBox" ref={mapRef} className="map-box"></div>
     </div>
   );
 }

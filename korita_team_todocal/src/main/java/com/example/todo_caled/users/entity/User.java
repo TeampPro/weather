@@ -1,4 +1,4 @@
-package com.example.todo_caled.users.entity;
+package com.example.todo_caled.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -10,7 +10,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long userId; // PK (자동 증가)
+    private Long userId; // PK
 
     @Column(nullable = false, unique = true)
     private String id; // 로그인용 아이디
@@ -18,49 +18,18 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false, unique = true)
-    private String email;
+    @Column
+    private String email; // 비회원은 공백 가능
+
+    @Column
+    private String name; // 비회원은 공백 가능
+
+    @Column
+    private String kakaoId; // 카카오톡 아이디
+
+    @Column
+    private String kakaoEmail; // 카카오톡 이메일
 
     @Column(nullable = false)
-    private String name;
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
+    private String userType = "NORMAL"; // NORMAL or GUEST
 }
